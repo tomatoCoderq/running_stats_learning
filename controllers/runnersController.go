@@ -82,7 +82,7 @@ func (rh RunnersController) DeleteRunner(ctx *gin.Context) {
 
 func (rh RunnersController) GetRunner(ctx *gin.Context) {
 	runnerId := ctx.Param("id")
-	log.Printf(runnerId)
+	log.Print(runnerId)
 	response, responseErr := rh.runnersService.GetRunner(runnerId)
 	if responseErr != nil {
 		log.Printf("Error while getting runner %v", responseErr)
@@ -93,5 +93,13 @@ func (rh RunnersController) GetRunner(ctx *gin.Context) {
 }
 
 func (rh RunnersController) GetRunnersBatch(ctx *gin.Context) {
-	return
+	params := ctx.Request.URL.Query()
+	country := params.Get("country")
+	year := params.Get("year")
+	response, responseErr := rh.runnersService.GetRunnersBatch(country, year)
+	if responseErr != nil {
+		ctx.JSON(responseErr.Status, responseErr)
+		return 
+	}
+	ctx.JSON(http.StatusOK, response)
 }

@@ -177,7 +177,7 @@ func (rr RunnersRepository) GetAllRunners() ([]*models.Runner, *models.ResponseE
 	rows, err := rr.dbHandler.Query(query)
 	if err != nil {
 		return nil, &models.ResponseError{
-			Message: err.Error(),
+			Message:" err.Error()",
 			Status:  http.StatusInternalServerError,
 		}
 	}
@@ -191,7 +191,7 @@ func (rr RunnersRepository) GetAllRunners() ([]*models.Runner, *models.ResponseE
 	var isActive bool
 
 	for rows.Next() {
-		err := rows.Scan(&id, &firstName, &lastName, &age, &country, &personalBest, &seasonBest)
+		err := rows.Scan(&id, &firstName, &lastName, &age, &isActive, &country, &personalBest, &seasonBest)
 		if err != nil {
 			return nil, &models.ResponseError{
 				Message: err.Error(),
@@ -223,7 +223,7 @@ func (rr RunnersRepository) GetAllRunners() ([]*models.Runner, *models.ResponseE
 
 func (rr RunnersRepository) GetRunnersByCountry(country string) ([]*models.Runner, *models.ResponseError) {
 	query := `SELECT * FROM runners where country=$1 AND is_active='true' order by personal_best LIMIT 10`
-	rows, err := rr.dbHandler.Query(query)
+	rows, err := rr.dbHandler.Query(query, country)
 	if err != nil {
 		return nil, &models.ResponseError{
 			Message: err.Error(),
@@ -270,7 +270,7 @@ func (rr RunnersRepository) GetRunnersByCountry(country string) ([]*models.Runne
 }
 
 func (rr RunnersRepository) GetRunnersByYear(year int) ([]*models.Runner, *models.ResponseError) {
-	query := `SELECT runners.id, runners.first_name, runners.last_name, runners.age, runners.is_alive, 
+	query := `SELECT runners.id, runners.first_name, runners.last_name, runners.age, runners.is_active, 
 	runners.personal_best, results.race_result
 	FROM runners INNER JOIN 
 	(
@@ -278,13 +278,13 @@ func (rr RunnersRepository) GetRunnersByYear(year int) ([]*models.Runner, *model
 		MIN(race_result) as race_result
 		FROM results
 		WHERE year=$1
-		GROUPED BY runner_id
+		GROUP BY runner_id
 	)
 	results ON runners.id = results.runner_id
 	ORDER BY results.race_result
 	LIMIT 10`
 
-	rows, err := rr.dbHandler.Query(query)
+	rows, err := rr.dbHandler.Query(query, year)
 	if err != nil {
 		return nil ,&models.ResponseError{
 			Message: err.Error(),

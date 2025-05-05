@@ -3,6 +3,7 @@ package services
 import (
 	"gopr/models"
 	"gopr/repositories"
+	// "log"
 	_ "log"
 
 	// "log"
@@ -72,11 +73,12 @@ func (rs RunnersService) GetRunner(runnerID string) (*models.Runner, *models.Res
 }
 
 func (rs RunnersService) GetRunnersBatch(country string, year string) ([]*models.Runner, *models.ResponseError) {
-	if country == "" && year == "" {
-		return nil, &models.ResponseError{
-			Message: "No year and country",
-			Status:  http.StatusBadRequest,
-		}
+	if country != "" && year != "" {
+		// return nil, &models.ResponseError{
+		// 	Message: "No year and country",
+		// 	Status:  http.StatusBadRequest,
+		// }
+		return rs.runnersRepository.GetAllRunners()
 	}
 	if country != "" {
 		return rs.runnersRepository.GetRunnersByCountry(country)
